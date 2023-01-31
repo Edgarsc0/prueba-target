@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p>Coordenadas de los gallineros:</p>
+    <p>LATITUD: 19.453634125631304</p>
+    <p>LONGITUD: -99.17513179793697</p>
+    <hr>
+    <p>Coordenadas de la pared</p>
+    <p>LATITUD: 19.453198183985943</p>
+    <p>LONGITUD: -99.17543325789246</p>
+    <hr>
+    <table>
+        <tr>
+            <td><label>Ingrese la latitud destino</label></td>
+            <td><input id="target-lat" type="number"></td>
+        </tr>
+        <tr>
+            <td><label>Ingrese la longitud destino</label></td>
+            <td><input id="target-lon" type="number"></td>
+        </tr>
+        <tr>
+            <td>
+                <label>Modo:</label>
+            </td>
+            <td>
+                <select id="mode">
+                    <option value="n/a">Escoge un modo de calculo</option>
+                    <option value="WNT">WatchPosition native target</option>
+                    <option value="RTGPT">Radio target with GPT</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+    <div id="advs"></div>
+    <button id="start">Comenzar WatchPosition</button>
+    <dialog>
+        <h1>Has alcanzado el target</h1>
+    </dialog>
+    <script>
+        document.getElementById("start").onclick=()=>{
+            const dialog=document.querySelector("dialog");
+            const div=document.getElementById("advs");
+            switch(document.getElementById("mode").value){
+                case "WNT":
+                    const target={
+                        latitude:document.getElementById("target-lat").value,
+                        longitude:document.getElementById("target-lon").value
+                    }
+                    const options={
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
+                    }
+                    const success=(pos)=>{
+                        const crd=pos.coords;
+                        if(target.latitude==crd.latitude&&target.longitude==crd.longitude){
+                            dialog.showModal();
+                            navigator.geolocation.clearWatch(id);
+                        }
+                    }
+                    const error=(err)=>{
+                        alert(err);
+                    }
+                    const id=navigator.geolocation.watchPosition(success,error,options);
+                    break;
+                case "RTGPT":
+                    var targetLatitude = document.getElementById("target-lat").value;
+                    var targetLongitude = document.getElementById("target-lon").value;
+                    var targetRadius = 2; // en metros
+
+                    var watchId = navigator.geolocation.watchPosition(function(position) {
+                        var userLatitude = position.coords.latitude;
+                        var userLongitude = position.coords.longitude;
+
+                        var distance = calculateDistance(userLatitude, userLongitude, targetLatitude, targetLongitude);
+
+                        if (distance <= targetRadius) {
+                            dialog.showModal();
+                            navigator.geolocation.clearWatch(watchId);
+                        } else {
+                            div.innerHTML="<p>User is still " + distance + " meters away from the target location</p>"
+                            //console.log("User is still " + distance + " meters away from the target location");
+                        }
+                    });
+
+                    function calculateDistance(lat1, lon1, lat2, lon2) {
+                        var R = 6371e3; // Earth's radius in meters
+                        var φ1 = lat1 * Math.PI / 180;
+                        var φ2 = lat2 * Math.PI / 180;
+                        var Δφ = (lat2 - lat1) * Math.PI / 180;
+                        var Δλ = (lon2 - lon1) * Math.PI / 180;
+
+                        var a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                                Math.cos(φ1) * Math.cos(φ2) *
+                                Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+                        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+                        var distance = R * c;
+
+                        return distance;
+                    }
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>
