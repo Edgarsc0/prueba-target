@@ -47,7 +47,17 @@
     <dialog>
         <h1>Has alcanzado el target</h1>
     </dialog>
+    <button onclick="mostrarCoords()">Obtener Coordenadas</button>
+    <div id="cords"></div>
     <script>
+        const mostrarCoords=()=>{
+            const div=document.getElementById("cords");
+            navigator.geolocation.getCurrentPosition((position)=>{
+                div.innerHTML=`<label>Latitud: ${position.coords.latitude}</label>
+                <br>
+                <label>Longitud: ${position.coords.longitude}</label>`;
+            })
+        }
         const divUmbral=document.getElementById("umbral");
         const divGraph=document.getElementById("graph");
         const mostrarUmbral=value=>{
