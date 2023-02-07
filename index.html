@@ -56,7 +56,10 @@
         const mostrarCoords=()=>{
             const div=document.getElementById("cords");
             navigator.geolocation.getCurrentPosition((position)=>{
-                div.innerHTML=`<label>Latitud: ${position.coords.latitude}</label>
+                div.innerHTML=`
+                <br>
+                <br>
+                <label>Latitud: ${position.coords.latitude}</label>
                 <br>
                 <label>Longitud: ${position.coords.longitude}</label>`;
             })
