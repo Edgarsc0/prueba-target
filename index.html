@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.plot.ly/plotly-2.18.0.min.js"></script>
     <title>Document</title>
 </head>
 <body>
@@ -29,7 +30,7 @@
                 <label>Modo:</label>
             </td>
             <td>
-                <select id="mode">
+                <select id="mode" onchange="mostrarUmbral(this.value)">
                     <option value="n/a">Escoge un modo de calculo</option>
                     <option value="WNT">WatchPosition native target</option>
                     <option value="RTGPT">Radio target with GPT</option>
@@ -37,12 +38,24 @@
             </td>
         </tr>
     </table>
+    <br>
+    <div id="umbral"></div>
+    <br>
     <div id="advs"></div>
     <button id="start">Comenzar WatchPosition</button>
+    <div id="graph"></div>
     <dialog>
         <h1>Has alcanzado el target</h1>
     </dialog>
     <script>
+        const divUmbral=document.getElementById("umbral");
+        const divGraph=document.getElementById("graph");
+        const mostrarUmbral=value=>{
+            if(value=="n/a" || value=="WNT") divUmbral.innerHTML="";
+            else divUmbral.innerHTML=`
+                <label>Umbral de detección: </label><input type="text" id="umbral-value" placeholder="Umbral en metros">
+            `
+        }
         document.getElementById("start").onclick=()=>{
             const dialog=document.querySelector("dialog");
             const div=document.getElementById("advs");
@@ -72,14 +85,20 @@
                 case "RTGPT":
                     var targetLatitude = document.getElementById("target-lat").value;
                     var targetLongitude = document.getElementById("target-lon").value;
-                    var targetRadius = 2; // en metros
-
+                    var targetRadius = document.getElementById("umbral-value").value; // en metros
+                    const longitudes=[targetLongitude];
+                    const latitudes=[targetLatitude];
                     var watchId = navigator.geolocation.watchPosition(function(position) {
                         var userLatitude = position.coords.latitude;
                         var userLongitude = position.coords.longitude;
-
+                        longitudes.push(userLongitude);
+                        latitudes.push(userLatitude);
                         var distance = calculateDistance(userLatitude, userLongitude, targetLatitude, targetLongitude);
-
+                        Plotly.newPlot(divGraph,[{
+                            x:longitudes,
+                            y:latitudes,
+                            mode: 'markers'
+                        }])
                         if (distance <= targetRadius) {
                             dialog.showModal();
                             navigator.geolocation.clearWatch(watchId);
@@ -107,6 +126,9 @@
                     }
                     break;
             }
+        }
+        function isInCircle(user,target,radio){
+            return Math.pow(user.lat-target.lat,2)+Math.pow(user.lon-target.lon,2)<=Math.pow(radio,2);
         }
     </script>
 </body>
