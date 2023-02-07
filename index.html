@@ -46,6 +46,7 @@
     <div id="graph"></div>
     <dialog>
         <h1>Has alcanzado el target</h1>
+        <button onclick="cancelModal()">Cerrar modal</button>
     </dialog>
     <br>
     <br>
@@ -71,6 +72,10 @@
             else divUmbral.innerHTML=`
                 <label>Umbral de detección: </label><input type="text" id="umbral-value" placeholder="Umbral en metros">
             `
+        }
+        const dialog=document.querySelector("dialog");
+        const cancelModal=()=>{
+            dialog.close();
         }
         document.getElementById("start").onclick=()=>{
             const dialog=document.querySelector("dialog");
