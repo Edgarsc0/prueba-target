@@ -8,6 +8,8 @@
     <title>Document</title>
 </head>
 <body>
+    <button onclick="showPosition()">Mostrar Ubicacion</button>
+    <input id="lat" placeholder="latitud"><input id="lon" placeholder="longitud">
     <p>Coordenadas de los gallineros:</p>
     <p>LATITUD: 19.453634125631304</p>
     <p>LONGITUD: -99.17513179793697</p>
@@ -54,6 +56,12 @@
     <button onclick="mostrarCoords()">Obtener Coordenadas</button>
     <div id="cords"></div>
     <script>
+        const showPosition=()=>{
+            navigator.geolocation.getCurrentPosition((position)=>{
+                document.getElementById("lat").value=position.coords.latitude;
+                document.getElementById("lon").value=position.coords.longitude;
+            });
+        }
         const mostrarCoords=()=>{
             const div=document.getElementById("cords");
             navigator.geolocation.getCurrentPosition((position)=>{
